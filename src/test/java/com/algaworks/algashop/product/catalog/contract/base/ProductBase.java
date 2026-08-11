@@ -24,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
 @WebMvcTest(controllers = ProductController.class)
 public class ProductBase {
 
@@ -42,6 +45,8 @@ public class ProductBase {
 
     public static final UUID createdProductId = UUID.fromString("f7c6843f-465c-476d-9a9b-4783bde4dc5e");
 
+    private static final UUID notFoundProductId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
     @BeforeEach
     void setUp() {
         RestAssuredMockMvc.mockMvc(MockMvcBuilders.webAppContextSetup(context)
@@ -53,6 +58,33 @@ public class ProductBase {
         mockFilterProducts();
         mockCreateProduct();
         mockInvalidProductFindById();
+        mockUpdateProduct();
+        mockDeleteProduct();
+        mockUpdateProductNotFound();
+        mockDeleteProductNotFound();
+    }
+
+    private void mockDeleteProductNotFound() {
+        Mockito.doThrow(new ResourceNotFoundException())
+                .when(productManagementApplicationService)
+                .update(eq(notFoundProductId), any(ProductInput.class));
+    }
+
+    private void mockUpdateProductNotFound() {
+        Mockito.doThrow(new ResourceNotFoundException())
+                .when(productManagementApplicationService)
+                .update(eq(notFoundProductId), any(ProductInput.class));
+
+    }
+
+    private void mockDeleteProduct() {
+        Mockito.doNothing().when(productManagementApplicationService)
+                .disable(validProductId);
+    }
+
+    private void mockUpdateProduct() {
+        Mockito.doNothing().when(productManagementApplicationService)
+                .update(eq(validProductId), any(ProductInput.class));
     }
 
     private void mockInvalidProductFindById() {
